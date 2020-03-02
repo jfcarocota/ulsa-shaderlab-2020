@@ -3,6 +3,7 @@ Shader "Custom/SDRimLight"
     Properties
     {
         [HDR] _RimColor("Rim Color", Color) = (1, 0, 0, 1)
+        _RimPower("Rim Power", Range(0.0, 8.0)) = 1.0
     }
 
     SubShader
@@ -14,9 +15,11 @@ Shader "Custom/SDRimLight"
         }
 
         CGPROGRAM
+
             #pragma surface surf Lambert
 
             half3 _RimColor;
+            float _RimPower;
 
             struct Input
             {
@@ -27,9 +30,10 @@ Shader "Custom/SDRimLight"
             {
                 float3 nVD = normalize(IN.viewDir);
                 float3 NdotV = dot(nVD, o.Normal);
-                half rim = 1 - NdotV;
-                o.Emission = _RimColor.rgb * rim;
+                half rim = 1 - saturate(NdotV);
+                o.Emission = _RimColor.rgb * pow(rim, _RimPower);
             }
+            
         ENDCG
     }
 }
